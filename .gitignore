@@ -1,7 +1,8 @@
 node_modules/
 .env
+.env.local
+.next/
+out/
 dist/
-*.js
-*.d.ts
-*.js.map
-!drizzle.config.ts
+*.tsbuildinfo
+next-env.d.ts

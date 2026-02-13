@@ -1,0 +1,39 @@
+import type { Metadata } from "next";
+import { Providers } from "@/components/providers";
+import { ToastContainer } from "@/components/shared/Toast";
+import { DarkModeScript } from "@/components/shared/DarkModeScript";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "AgendaBarber - Gestão para Barbearias",
+  description:
+    "Sistema de gestão para barbearias com agendamento inteligente via WhatsApp",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons+Round"
+          rel="stylesheet"
+        />
+        <DarkModeScript />
+      </head>
+      <body className="font-sans antialiased">
+        <Providers>
+          {children}
+          <ToastContainer />
+        </Providers>
+      </body>
+    </html>
+  );
+}
