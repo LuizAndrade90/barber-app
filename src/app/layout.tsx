@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { ToastContainer } from "@/components/shared/Toast";
 import { DarkModeScript } from "@/components/shared/DarkModeScript";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function RootLayout({
           {children}
           <ToastContainer />
         </Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
