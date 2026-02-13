@@ -4,10 +4,10 @@ import { barbeiros } from "@/lib/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 
 const horarioSchema = z.record(
-  z.string(),
+  z.string().max(20),
   z.object({
-    inicio: z.string(),
-    fim: z.string(),
+    inicio: z.string().regex(/^\d{2}:\d{2}$/),
+    fim: z.string().regex(/^\d{2}:\d{2}$/),
     ativo: z.boolean(),
   })
 );
@@ -37,12 +37,12 @@ export const barbersRouter = router({
   create: managerProcedure
     .input(
       z.object({
-        nome: z.string().min(1),
-        apelido: z.string().optional(),
-        telefone: z.string().optional(),
-        email: z.string().email().optional(),
-        corCalendario: z.string().default("#25d466"),
-        especialidades: z.array(z.string()).optional(),
+        nome: z.string().min(1).max(100),
+        apelido: z.string().max(50).optional(),
+        telefone: z.string().max(20).optional(),
+        email: z.string().email().max(100).optional(),
+        corCalendario: z.string().regex(/^#[0-9a-fA-F]{6}$/).default("#25d466"),
+        especialidades: z.array(z.string().max(50)).max(20).optional(),
         comissao: z.number().min(0).max(100).default(0),
         horarioPersonalizado: horarioSchema.optional(),
       })
@@ -69,12 +69,12 @@ export const barbersRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nome: z.string().min(1).optional(),
-        apelido: z.string().optional(),
-        telefone: z.string().optional(),
-        email: z.string().email().optional(),
-        corCalendario: z.string().optional(),
-        especialidades: z.array(z.string()).optional(),
+        nome: z.string().min(1).max(100).optional(),
+        apelido: z.string().max(50).optional(),
+        telefone: z.string().max(20).optional(),
+        email: z.string().email().max(100).optional(),
+        corCalendario: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+        especialidades: z.array(z.string().max(50)).max(20).optional(),
         comissao: z.number().min(0).max(100).optional(),
       })
     )
@@ -110,7 +110,12 @@ export const barbersRouter = router({
       const [updated] = await ctx.db
         .update(barbeiros)
         .set({ ativo: !barbeiro.ativo, atualizadoEm: new Date() })
-        .where(eq(barbeiros.id, input.id))
+        .where(
+          and(
+            eq(barbeiros.id, input.id),
+            eq(barbeiros.barbeariaId, ctx.barbeariaId)
+          )
+        )
         .returning();
 
       return updated;

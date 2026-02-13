@@ -97,19 +97,36 @@ export const appointmentsRouter = router({
         servicoId: z.string().uuid(),
         clienteId: z.string().uuid(),
         dataHora: z.string(),
-        observacoes: z.string().optional(),
-        origem: z.enum(["whatsapp", "manual", "app"]).default("manual"),
+        observacoes: z.string().max(1000).optional(),
+        origem: z.enum(["manual", "app"]).default("manual"),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const servico = await ctx.db.query.servicos.findFirst({
-        where: and(
-          eq(servicos.id, input.servicoId),
-          eq(servicos.barbeariaId, ctx.barbeariaId)
-        ),
-      });
+      // Validar que barbeiro, servico e cliente pertencem a mesma barbearia
+      const [servico, barbeiro, cliente] = await Promise.all([
+        ctx.db.query.servicos.findFirst({
+          where: and(
+            eq(servicos.id, input.servicoId),
+            eq(servicos.barbeariaId, ctx.barbeariaId)
+          ),
+        }),
+        ctx.db.query.barbeiros.findFirst({
+          where: and(
+            eq(barbeiros.id, input.barbeiroId),
+            eq(barbeiros.barbeariaId, ctx.barbeariaId)
+          ),
+        }),
+        ctx.db.query.clientes.findFirst({
+          where: and(
+            eq(clientes.id, input.clienteId),
+            eq(clientes.barbeariaId, ctx.barbeariaId)
+          ),
+        }),
+      ]);
 
       if (!servico) throw new Error("Serviço não encontrado");
+      if (!barbeiro) throw new Error("Barbeiro não encontrado");
+      if (!cliente) throw new Error("Cliente não encontrado");
 
       const dataHora = new Date(input.dataHora);
       const dataHoraFim = new Date(dataHora);
@@ -172,7 +189,7 @@ export const appointmentsRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        motivo: z.string().optional(),
+        motivo: z.string().max(500).optional(),
         canceladoPor: z.enum(["cliente", "barbeiro", "sistema"]).default("barbeiro"),
       })
     )
@@ -208,7 +225,7 @@ export const appointmentsRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        precoFinal: z.number().optional(),
+        precoFinal: z.number().int().min(0).max(100000).optional(),
         formaPagamento: z
           .enum(["dinheiro", "pix", "cartao_credito", "cartao_debito"])
           .optional(),

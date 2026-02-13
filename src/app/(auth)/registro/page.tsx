@@ -1,16 +1,8 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
 
 export default function RegistroPage() {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [senha, setSenha] = useState("");
-  const [nomeBarbearia, setNomeBarbearia] = useState("");
-  const [termos, setTermos] = useState(false);
-
   return (
     <div className="space-y-6">
       {/* Logo */}
@@ -26,111 +18,16 @@ export default function RegistroPage() {
         </p>
       </div>
 
-      {/* Formulário */}
+      {/* Card */}
       <div className="rounded-2xl border border-border bg-surface-light p-6 shadow-soft dark:bg-surface-dark">
         <h2 className="mb-4 text-lg font-semibold text-foreground">
           Criar conta
         </h2>
 
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Nome completo
-            </label>
-            <input
-              type="text"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              placeholder="Seu nome"
-              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              E-mail
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Telefone
-            </label>
-            <input
-              type="tel"
-              value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
-              placeholder="(11) 99999-0000"
-              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Senha
-            </label>
-            <input
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder="Mínimo 8 caracteres"
-              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Nome da barbearia
-            </label>
-            <input
-              type="text"
-              value={nomeBarbearia}
-              onChange={(e) => setNomeBarbearia(e.target.value)}
-              placeholder="Ex: Barbearia do João"
-              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <label className="flex items-start gap-2">
-            <input
-              type="checkbox"
-              checked={termos}
-              onChange={(e) => setTermos(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
-            />
-            <span className="text-xs text-muted-foreground">
-              Concordo com os{" "}
-              <a href="#" className="text-primary hover:underline">
-                Termos de Uso
-              </a>{" "}
-              e{" "}
-              <a href="#" className="text-primary hover:underline">
-                Política de Privacidade
-              </a>
-            </span>
-          </label>
-
-          <button
-            disabled={!termos}
-            className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover active:scale-[0.98] disabled:opacity-50"
-          >
-            Criar conta
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="my-5 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">ou entre com</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
+        <p className="mb-5 text-sm text-muted-foreground">
+          Cadastre-se com sua conta Google para começar a gerenciar sua barbearia.
+          Uma nova barbearia será criada automaticamente para você.
+        </p>
 
         <button
           onClick={() => signIn("google", { callbackUrl: "/agenda" })}
@@ -156,6 +53,17 @@ export default function RegistroPage() {
           </svg>
           Continuar com Google
         </button>
+
+        <p className="mt-4 text-xs text-muted-foreground text-center">
+          Ao continuar, você concorda com os{" "}
+          <a href="#" className="text-primary hover:underline">
+            Termos de Uso
+          </a>{" "}
+          e{" "}
+          <a href="#" className="text-primary hover:underline">
+            Política de Privacidade
+          </a>
+        </p>
       </div>
 
       <p className="text-center text-sm text-muted-foreground">

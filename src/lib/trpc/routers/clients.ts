@@ -7,7 +7,7 @@ export const clientsRouter = router({
   list: protectedProcedure
     .input(
       z.object({
-        busca: z.string().optional(),
+        busca: z.string().max(100).optional(),
         filtro: z.enum(["todos", "vip", "novos", "inativos"]).default("todos"),
         pagina: z.number().min(1).default(1),
         porPagina: z.number().min(1).max(100).default(20),
@@ -76,12 +76,12 @@ export const clientsRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        nome: z.string().min(1),
-        whatsapp: z.string().optional(),
-        telefone: z.string().optional(),
-        email: z.string().email().optional(),
-        observacoes: z.string().optional(),
-        tags: z.array(z.string()).optional(),
+        nome: z.string().min(1).max(100),
+        whatsapp: z.string().max(20).optional(),
+        telefone: z.string().max(20).optional(),
+        email: z.string().email().max(100).optional(),
+        observacoes: z.string().max(1000).optional(),
+        tags: z.array(z.string().max(30)).max(20).optional(),
         fonte: z
           .enum(["whatsapp", "manual", "indicacao", "instagram", "outro"])
           .default("manual"),
@@ -108,12 +108,12 @@ export const clientsRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nome: z.string().min(1).optional(),
-        whatsapp: z.string().optional(),
-        telefone: z.string().optional(),
-        email: z.string().email().optional(),
-        observacoes: z.string().optional(),
-        tags: z.array(z.string()).optional(),
+        nome: z.string().min(1).max(100).optional(),
+        whatsapp: z.string().max(20).optional(),
+        telefone: z.string().max(20).optional(),
+        email: z.string().email().max(100).optional(),
+        observacoes: z.string().max(1000).optional(),
+        tags: z.array(z.string().max(30)).max(20).optional(),
         vip: z.boolean().optional(),
       })
     )
@@ -135,7 +135,7 @@ export const clientsRouter = router({
     }),
 
   search: protectedProcedure
-    .input(z.object({ termo: z.string().min(1) }))
+    .input(z.object({ termo: z.string().min(1).max(100) }))
     .query(async ({ ctx, input }) => {
       return ctx.db.query.clientes.findMany({
         where: and(

@@ -79,10 +79,10 @@ export async function handleGetSlots(
         where: eq(barbearias.id, barbeariaId),
       }),
       db.query.barbeiros.findFirst({
-        where: eq(barbeiros.id, data.barbeiroId),
+        where: and(eq(barbeiros.id, data.barbeiroId), eq(barbeiros.barbeariaId, barbeariaId)),
       }),
       db.query.servicos.findFirst({
-        where: eq(servicos.id, data.servicoId),
+        where: and(eq(servicos.id, data.servicoId), eq(servicos.barbeariaId, barbeariaId)),
       }),
       db.query.agendamentos.findMany({
         where: and(
@@ -125,11 +125,22 @@ export async function handleCreateAppointment(
   barbeariaId: string,
   data: T.CreateAppointmentData
 ) {
-  const servico = await db.query.servicos.findFirst({
-    where: eq(servicos.id, data.servicoId),
-  });
+  // Validar que barbeiro, servico e cliente pertencem a barbearia
+  const [servico, barbeiroCriacao, clienteCriacao] = await Promise.all([
+    db.query.servicos.findFirst({
+      where: and(eq(servicos.id, data.servicoId), eq(servicos.barbeariaId, barbeariaId)),
+    }),
+    db.query.barbeiros.findFirst({
+      where: and(eq(barbeiros.id, data.barbeiroId), eq(barbeiros.barbeariaId, barbeariaId)),
+    }),
+    db.query.clientes.findFirst({
+      where: and(eq(clientes.id, data.clienteId), eq(clientes.barbeariaId, barbeariaId)),
+    }),
+  ]);
 
   if (!servico) throw new Error("Serviço não encontrado");
+  if (!barbeiroCriacao) throw new Error("Barbeiro não encontrado");
+  if (!clienteCriacao) throw new Error("Cliente não encontrado");
 
   const dataHora = new Date(data.dataHora);
   const dataHoraFim = new Date(dataHora);

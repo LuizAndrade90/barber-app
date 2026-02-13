@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { agendamentos } from "@/lib/db/schema";
-import { eq, and, gte, lte, sql } from "drizzle-orm";
+import { eq, and, gte, lte } from "drizzle-orm";
+import { timingSafeEqual } from "crypto";
+
+function safeCompare(a: string, b: string): boolean {
+  try {
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    if (bufA.length !== bufB.length) return false;
+    return timingSafeEqual(bufA, bufB);
+  } catch {
+    return false;
+  }
+}
 
 export async function GET(request: NextRequest) {
-  // Verificar autorizacao (cron secret ou API key)
+  // Verificar autorizacao com comparacao timing-safe
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const expectedSecret = process.env.CRON_SECRET;
+
+  if (
+    !authHeader ||
+    !expectedSecret ||
+    !safeCompare(authHeader, `Bearer ${expectedSecret}`)
+  ) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 
@@ -31,26 +49,18 @@ export async function GET(request: NextRequest) {
     });
 
     // Marcar como lembrete enviado
-    const ids = pendentesLembrete.map((a) => a.id);
-    if (ids.length > 0) {
+    for (const agendamento of pendentesLembrete) {
       await db
         .update(agendamentos)
         .set({ lembreteEnviado: true })
-        .where(sql`${agendamentos.id} IN ${ids}`);
+        .where(eq(agendamentos.id, agendamento.id));
     }
 
+    // Responder sem PII — apenas IDs e contagem
     return NextResponse.json({
       success: true,
       lembretes: pendentesLembrete.length,
-      agendamentos: pendentesLembrete.map((a) => ({
-        id: a.id,
-        clienteNome: a.cliente?.nome,
-        clienteWhatsapp: a.cliente?.whatsapp,
-        barbeiroNome: a.barbeiro?.nome,
-        servicoNome: a.servico?.nome,
-        dataHora: a.dataHora,
-        barbeariaId: a.barbeariaId,
-      })),
+      ids: pendentesLembrete.map((a) => a.id),
     });
   } catch (error) {
     console.error("Cron reminders error:", error);

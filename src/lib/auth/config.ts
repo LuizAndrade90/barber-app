@@ -33,20 +33,21 @@ declare module "next-auth/jwt" {
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 dias
+    maxAge: 24 * 60 * 60, // 24 horas
   },
   pages: {
     signIn: "/login",
     newUser: "/registro",
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user }) {
       if (!user.email) return false;
 
       // Verificar se usuario existe
@@ -55,15 +56,34 @@ export const authOptions: NextAuthOptions = {
       });
 
       if (existingUser) {
+        // Verificar se usuario esta ativo
+        if (!existingUser.ativo) return false;
+
+        // Atualizar ultimo login
+        await db
+          .update(usuarios)
+          .set({ ultimoLogin: new Date() })
+          .where(eq(usuarios.id, existingUser.id));
+
         return true;
       }
 
       // Primeiro login - criar barbearia e usuario
+      // Gerar slug seguro (nao sequencial/adivinhavel)
+      const slugBase = (user.name || "barbearia")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      const slugSuffix = Math.random().toString(36).substring(2, 8);
+      const slug = `${slugBase}-${slugSuffix}`;
+
       const [novaBarbearia] = await db
         .insert(barbearias)
         .values({
           nome: `Barbearia de ${user.name || "Novo Usuário"}`,
-          slug: `barbearia-${Date.now()}`,
+          slug,
         })
         .returning();
 
@@ -71,16 +91,10 @@ export const authOptions: NextAuthOptions = {
         barbeariaId: novaBarbearia.id,
         nome: user.name || "Novo Usuário",
         email: user.email,
+        emailVerificado: new Date(),
         image: user.image,
         role: "owner",
-        permissoes: {
-          gerenciarEquipe: true,
-          gerenciarServicos: true,
-          gerenciarClientes: true,
-          verRelatorios: true,
-          gerenciarConfiguracoes: true,
-          gerenciarWhatsApp: true,
-        },
+        ultimoLogin: new Date(),
       });
 
       return true;

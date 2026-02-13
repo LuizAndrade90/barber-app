@@ -25,12 +25,12 @@ export const servicesRouter = router({
   create: managerProcedure
     .input(
       z.object({
-        nome: z.string().min(1),
-        descricao: z.string().optional(),
-        duracaoMinutos: z.number().min(5),
-        precoCentavos: z.number().min(0),
-        categoria: z.string().optional(),
-        icone: z.string().optional(),
+        nome: z.string().min(1).max(100),
+        descricao: z.string().max(500).optional(),
+        duracaoMinutos: z.number().int().min(5).max(480),
+        precoCentavos: z.number().int().min(0).max(100000),
+        categoria: z.string().max(50).optional(),
+        icone: z.string().max(50).optional(),
         exibirWhatsapp: z.boolean().default(true),
       })
     )
@@ -57,12 +57,12 @@ export const servicesRouter = router({
     .input(
       z.object({
         id: z.string().uuid(),
-        nome: z.string().min(1).optional(),
-        descricao: z.string().optional(),
-        duracaoMinutos: z.number().min(5).optional(),
-        precoCentavos: z.number().min(0).optional(),
-        categoria: z.string().optional(),
-        icone: z.string().optional(),
+        nome: z.string().min(1).max(100).optional(),
+        descricao: z.string().max(500).optional(),
+        duracaoMinutos: z.number().int().min(5).max(480).optional(),
+        precoCentavos: z.number().int().min(0).max(100000).optional(),
+        categoria: z.string().max(50).optional(),
+        icone: z.string().max(50).optional(),
         exibirWhatsapp: z.boolean().optional(),
       })
     )
@@ -105,7 +105,12 @@ export const servicesRouter = router({
       const [updated] = await ctx.db
         .update(servicos)
         .set({ ativo: !servico.ativo, atualizadoEm: new Date() })
-        .where(eq(servicos.id, input.id))
+        .where(
+          and(
+            eq(servicos.id, input.id),
+            eq(servicos.barbeariaId, ctx.barbeariaId)
+          )
+        )
         .returning();
 
       return updated;

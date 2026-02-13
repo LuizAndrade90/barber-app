@@ -1,11 +1,14 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/agenda";
+  // Sanitizar callbackUrl — somente paths relativos permitidos
+  const safeCallback = callbackUrl.startsWith("/") ? callbackUrl : "/agenda";
 
   return (
     <div className="space-y-6">
@@ -22,58 +25,17 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Formulário */}
+      {/* Card */}
       <div className="rounded-2xl border border-border bg-surface-light p-6 shadow-soft dark:bg-surface-dark">
         <h2 className="mb-4 text-lg font-semibold text-foreground">Entrar</h2>
 
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              E-mail
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              Senha
-            </label>
-            <input
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <button className="text-sm text-primary hover:underline">
-              Esqueceu a senha?
-            </button>
-          </div>
-
-          <button className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover active:scale-[0.98]">
-            Entrar
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="my-5 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">ou entre com</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
+        <p className="mb-5 text-sm text-muted-foreground">
+          Use sua conta Google para acessar o painel da sua barbearia.
+        </p>
 
         {/* Google */}
         <button
-          onClick={() => signIn("google", { callbackUrl: "/agenda" })}
+          onClick={() => signIn("google", { callbackUrl: safeCallback })}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -98,7 +60,6 @@ export default function LoginPage() {
         </button>
       </div>
 
-      {/* Criar conta */}
       <p className="text-center text-sm text-muted-foreground">
         Ainda não tem conta?{" "}
         <a href="/registro" className="font-medium text-primary hover:underline">
@@ -106,5 +67,13 @@ export default function LoginPage() {
         </a>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
