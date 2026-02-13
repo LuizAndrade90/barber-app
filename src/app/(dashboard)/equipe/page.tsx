@@ -6,6 +6,7 @@ import { AvatarIniciais } from "@/components/ui/avatar-initials";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Fab } from "@/components/ui/fab";
+import { BarberModal } from "@/components/barbers/BarberModal";
 import { trpc } from "@/lib/trpc/client";
 
 export default function EquipePage() {
@@ -83,6 +84,11 @@ export default function EquipePage() {
         icone="person_add"
         label="Novo Barbeiro"
         onClick={() => setDialogAberto(true)}
+      />
+
+      <BarberModal
+        aberto={dialogAberto}
+        onFechar={() => setDialogAberto(false)}
       />
     </div>
   );

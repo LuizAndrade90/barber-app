@@ -9,6 +9,7 @@ import { SearchInput } from "@/components/shared/SearchInput";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { Fab } from "@/components/ui/fab";
+import { ClientModal } from "@/components/clients/ClientModal";
 import { trpc } from "@/lib/trpc/client";
 
 type Filtro = "todos" | "vip" | "novos" | "inativos";
@@ -17,6 +18,7 @@ export default function ClientesPage() {
   const router = useRouter();
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<Filtro>("todos");
+  const [dialogAberto, setDialogAberto] = useState(false);
 
   const { data: clientes, isLoading } = trpc.clients.list.useQuery({
     busca,
@@ -80,7 +82,12 @@ export default function ClientesPage() {
         )}
       </div>
 
-      <Fab icone="person_add" label="Novo Cliente" />
+      <Fab icone="person_add" label="Novo Cliente" onClick={() => setDialogAberto(true)} />
+
+      <ClientModal
+        aberto={dialogAberto}
+        onFechar={() => setDialogAberto(false)}
+      />
     </div>
   );
 }

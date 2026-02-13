@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { ServiceCard } from "@/components/ui/service-card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Fab } from "@/components/ui/fab";
+import { ServiceModal } from "@/components/services/ServiceModal";
 import { trpc } from "@/lib/trpc/client";
 import { LoadingState } from "@/components/shared/LoadingState";
 
@@ -58,6 +59,11 @@ export default function ServicosPage() {
         icone="add"
         label="Novo Serviço"
         onClick={() => setDialogAberto(true)}
+      />
+
+      <ServiceModal
+        aberto={dialogAberto}
+        onFechar={() => setDialogAberto(false)}
       />
     </div>
   );

@@ -9,6 +9,7 @@ import { BarberFilter } from "@/components/calendar/BarberFilter";
 import { DayView } from "@/components/calendar/DayView";
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { Fab } from "@/components/ui/fab";
+import { AppointmentModal } from "@/components/appointments/AppointmentModal";
 import { useCalendarStore } from "@/stores/calendarStore";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { NotificationBell } from "@/components/layout/NotificationBell";
@@ -93,6 +94,11 @@ export default function AgendaPage() {
         icone="add"
         label="Novo"
         onClick={() => setModalAberto(true)}
+      />
+
+      <AppointmentModal
+        aberto={modalAberto}
+        onFechar={() => setModalAberto(false)}
       />
     </div>
   );
