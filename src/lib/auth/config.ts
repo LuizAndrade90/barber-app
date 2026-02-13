@@ -101,9 +101,24 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user }) {
+      // On initial sign-in, user object is present
       if (user?.email) {
         const dbUser = await db.query.usuarios.findFirst({
           where: eq(usuarios.email, user.email),
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.barbeariaId = dbUser.barbeariaId;
+          token.role = dbUser.role;
+        }
+      }
+
+      // Fallback: if barbeariaId is still missing (race condition with DB),
+      // retry using token.email on subsequent requests
+      if (!token.barbeariaId && token.email) {
+        const dbUser = await db.query.usuarios.findFirst({
+          where: eq(usuarios.email, token.email),
         });
 
         if (dbUser) {
@@ -119,8 +134,12 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id;
-        session.user.barbeariaId = token.barbeariaId!;
-        session.user.role = token.role!;
+        if (token.barbeariaId) {
+          session.user.barbeariaId = token.barbeariaId;
+        }
+        if (token.role) {
+          session.user.role = token.role;
+        }
       }
 
       return session;
