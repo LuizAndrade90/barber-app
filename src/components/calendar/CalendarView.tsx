@@ -10,7 +10,16 @@ const FullCalendar = dynamic(
       import("@fullcalendar/react"),
       import("@fullcalendar/timegrid"),
       import("@fullcalendar/interaction"),
-    ]).then(([mod]) => mod.default),
+    ]).then(([calMod, timegridMod, interactionMod]) => {
+      const FC = calMod.default;
+      const plugins = [timegridMod.default, interactionMod.default];
+
+      function FullCalendarWithPlugins(props: Record<string, unknown>) {
+        return <FC plugins={plugins} {...props} />;
+      }
+
+      return { default: FullCalendarWithPlugins };
+    }),
   { ssr: false, loading: () => <div className="h-[600px] animate-pulse rounded-2xl bg-muted" /> }
 );
 

@@ -11,6 +11,10 @@ import { LoadingState } from "@/components/shared/LoadingState";
 import { trpc } from "@/lib/trpc/client";
 import { formatCentavos } from "@/lib/design-tokens";
 
+function toYMD(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
 function getDateRange(periodo: string) {
   const hoje = new Date();
   let dataInicio: Date;
@@ -35,12 +39,9 @@ function getDateRange(periodo: string) {
       dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
   }
 
-  dataInicio.setHours(0, 0, 0, 0);
-  dataFim.setHours(23, 59, 59, 999);
-
   return {
-    dataInicio: dataInicio.toISOString(),
-    dataFim: dataFim.toISOString(),
+    dataInicio: toYMD(dataInicio),
+    dataFim: toYMD(dataFim),
   };
 }
 
