@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json<N8nResponse>({ success: true, data: result });
   } catch (error) {
-    console.error("Webhook n8n error:", error);
+    console.error("Webhook n8n error:", error instanceof Error ? error.message : "unknown");
     // Nunca expor detalhes internos de erro
     return NextResponse.json<N8nResponse>(
       { success: false, error: "Erro interno do servidor" },

@@ -8,8 +8,8 @@ export const blocksRouter = router({
     .input(
       z.object({
         barbeiroId: z.string().uuid().optional(),
-        dataInicio: z.string().optional(),
-        dataFim: z.string().optional(),
+        dataInicio: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30).optional(),
+        dataFim: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -42,19 +42,19 @@ export const blocksRouter = router({
       z.object({
         barbeiroId: z.string().uuid().optional(),
         tipo: z.enum(["almoco", "folga", "ferias", "feriado", "outro"]),
-        titulo: z.string().optional(),
-        dataInicio: z.string(),
-        dataFim: z.string(),
+        titulo: z.string().max(100).optional(),
+        dataInicio: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
+        dataFim: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
         diaInteiro: z.boolean().default(false),
         recorrencia: z
           .object({
             tipo: z.enum(["diario", "semanal", "mensal"]),
-            diasSemana: z.array(z.number()).optional(),
-            intervalo: z.number().optional(),
-            dataFimRecorrencia: z.string().optional(),
+            diasSemana: z.array(z.number().int().min(0).max(6)).max(7).optional(),
+            intervalo: z.number().int().min(1).max(12).optional(),
+            dataFimRecorrencia: z.string().max(30).optional(),
           })
           .optional(),
-        observacao: z.string().optional(),
+        observacao: z.string().max(500).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

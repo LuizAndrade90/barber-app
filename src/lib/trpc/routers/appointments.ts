@@ -8,7 +8,7 @@ export const appointmentsRouter = router({
   listByDate: protectedProcedure
     .input(
       z.object({
-        data: z.string(),
+        data: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
         barbeiroId: z.string().uuid().optional(),
       })
     )
@@ -42,8 +42,8 @@ export const appointmentsRouter = router({
   listByDateRange: protectedProcedure
     .input(
       z.object({
-        dataInicio: z.string(),
-        dataFim: z.string(),
+        dataInicio: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
+        dataFim: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
         barbeiroId: z.string().uuid().optional(),
       })
     )
@@ -96,7 +96,7 @@ export const appointmentsRouter = router({
         barbeiroId: z.string().uuid(),
         servicoId: z.string().uuid(),
         clienteId: z.string().uuid(),
-        dataHora: z.string(),
+        dataHora: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
         observacoes: z.string().max(1000).optional(),
         origem: z.enum(["manual", "app"]).default("manual"),
       })
@@ -287,7 +287,7 @@ export const appointmentsRouter = router({
       z.object({
         barbeiroId: z.string().uuid(),
         servicoId: z.string().uuid(),
-        data: z.string(),
+        data: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
       })
     )
     .query(async ({ ctx, input }) => {

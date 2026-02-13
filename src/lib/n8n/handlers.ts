@@ -211,7 +211,13 @@ export async function handleGetAppointments(
   const conditions = [eq(agendamentos.barbeariaId, barbeariaId)];
 
   if (data.clienteId) {
-    conditions.push(eq(agendamentos.clienteId, data.clienteId));
+    // Validar que o cliente pertence a barbearia
+    const cliente = await db.query.clientes.findFirst({
+      where: and(eq(clientes.id, data.clienteId), eq(clientes.barbeariaId, barbeariaId)),
+    });
+    if (cliente) {
+      conditions.push(eq(agendamentos.clienteId, data.clienteId));
+    }
   }
 
   if (data.data) {
@@ -272,6 +278,16 @@ export async function handleLogMessage(
   barbeariaId: string,
   data: T.LogMessageData
 ) {
+  // Verificar que a conversa pertence a barbearia
+  const conversa = await db.query.conversas.findFirst({
+    where: and(
+      eq(conversas.id, data.conversaId),
+      eq(conversas.barbeariaId, barbeariaId)
+    ),
+  });
+
+  if (!conversa) throw new Error("Conversa não encontrada");
+
   const [msg] = await db
     .insert(mensagens)
     .values({

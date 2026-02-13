@@ -3,14 +3,16 @@ import { router, protectedProcedure } from "../server";
 import { agendamentos, metricasDiarias, aiInsights } from "@/lib/db/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 
+const isoDateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30);
+
+const dateRangeInput = z.object({
+  dataInicio: isoDateStr,
+  dataFim: isoDateStr,
+});
+
 export const analyticsRouter = router({
   getOverview: protectedProcedure
-    .input(
-      z.object({
-        dataInicio: z.string(),
-        dataFim: z.string(),
-      })
-    )
+    .input(dateRangeInput)
     .query(async ({ ctx, input }) => {
       const inicio = new Date(input.dataInicio);
       const fim = new Date(input.dataFim);
@@ -53,12 +55,7 @@ export const analyticsRouter = router({
     }),
 
   getDailyMetrics: protectedProcedure
-    .input(
-      z.object({
-        dataInicio: z.string(),
-        dataFim: z.string(),
-      })
-    )
+    .input(dateRangeInput)
     .query(async ({ ctx, input }) => {
       return ctx.db.query.metricasDiarias.findMany({
         where: and(
@@ -71,12 +68,7 @@ export const analyticsRouter = router({
     }),
 
   getServiceStats: protectedProcedure
-    .input(
-      z.object({
-        dataInicio: z.string(),
-        dataFim: z.string(),
-      })
-    )
+    .input(dateRangeInput)
     .query(async ({ ctx, input }) => {
       const inicio = new Date(input.dataInicio);
       const fim = new Date(input.dataFim);
@@ -102,12 +94,7 @@ export const analyticsRouter = router({
     }),
 
   getBarberStats: protectedProcedure
-    .input(
-      z.object({
-        dataInicio: z.string(),
-        dataFim: z.string(),
-      })
-    )
+    .input(dateRangeInput)
     .query(async ({ ctx, input }) => {
       const inicio = new Date(input.dataInicio);
       const fim = new Date(input.dataFim);
