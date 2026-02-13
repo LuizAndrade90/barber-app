@@ -5,6 +5,7 @@ import { barbersRouter } from "./barbers";
 import { clientsRouter } from "./clients";
 import { blocksRouter } from "./blocks";
 import { settingsRouter } from "./settings";
+import { analyticsRouter } from "./analytics";
 
 export const appRouter = router({
   appointments: appointmentsRouter,
@@ -13,6 +14,7 @@ export const appRouter = router({
   clients: clientsRouter,
   blocks: blocksRouter,
   settings: settingsRouter,
+  analytics: analyticsRouter,
 });
 
 export type AppRouter = typeof appRouter;
