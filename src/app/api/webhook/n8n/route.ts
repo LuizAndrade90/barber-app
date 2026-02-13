@@ -23,14 +23,14 @@ const getContextSchema = z.object({
 const getSlotsSchema = z.object({
   barbeiroId: z.string().uuid(),
   servicoId: z.string().uuid(),
-  data: z.string().max(20),
+  data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).max(10),
 });
 
 const createAppointmentSchema = z.object({
   barbeiroId: z.string().uuid(),
   servicoId: z.string().uuid(),
   clienteId: z.string().uuid(),
-  dataHora: z.string().max(30),
+  dataHora: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})?$/).max(30),
 });
 
 const cancelAppointmentSchema = z.object({
@@ -41,7 +41,7 @@ const cancelAppointmentSchema = z.object({
 const getAppointmentsSchema = z.object({
   clienteId: z.string().uuid().optional(),
   whatsappFrom: z.string().max(30).optional(),
-  data: z.string().max(20).optional(),
+  data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).max(10).optional(),
 });
 
 const updateConversationSchema = z.object({

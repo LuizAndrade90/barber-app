@@ -1,15 +1,17 @@
 import { z } from "zod";
 import { router, protectedProcedure, managerProcedure } from "../server";
-import { bloqueios } from "@/lib/db/schema";
+import { bloqueios, barbeiros } from "@/lib/db/schema";
 import { eq, and, gte, lte } from "drizzle-orm";
+
+const isoDateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).max(10);
 
 export const blocksRouter = router({
   list: protectedProcedure
     .input(
       z.object({
         barbeiroId: z.string().uuid().optional(),
-        dataInicio: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30).optional(),
-        dataFim: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30).optional(),
+        dataInicio: isoDateOnly.optional(),
+        dataFim: isoDateOnly.optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -43,21 +45,32 @@ export const blocksRouter = router({
         barbeiroId: z.string().uuid().optional(),
         tipo: z.enum(["almoco", "folga", "ferias", "feriado", "outro"]),
         titulo: z.string().max(100).optional(),
-        dataInicio: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
-        dataFim: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
+        dataInicio: isoDateOnly,
+        dataFim: isoDateOnly,
         diaInteiro: z.boolean().default(false),
         recorrencia: z
           .object({
             tipo: z.enum(["diario", "semanal", "mensal"]),
             diasSemana: z.array(z.number().int().min(0).max(6)).max(7).optional(),
             intervalo: z.number().int().min(1).max(12).optional(),
-            dataFimRecorrencia: z.string().max(30).optional(),
+            dataFimRecorrencia: isoDateOnly.optional(),
           })
           .optional(),
         observacao: z.string().max(500).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Validar que o barbeiro pertence a mesma barbearia
+      if (input.barbeiroId) {
+        const barbeiro = await ctx.db.query.barbeiros.findFirst({
+          where: and(
+            eq(barbeiros.id, input.barbeiroId),
+            eq(barbeiros.barbeariaId, ctx.barbeariaId)
+          ),
+        });
+        if (!barbeiro) throw new Error("Barbeiro não encontrado");
+      }
+
       const [novo] = await ctx.db
         .insert(bloqueios)
         .values({

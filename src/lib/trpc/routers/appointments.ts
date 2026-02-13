@@ -4,11 +4,14 @@ import { agendamentos, agendamentoHistorico, barbeiros, servicos, clientes, bloq
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { calculateAvailableSlots } from "@/lib/services/slots";
 
+const isoDateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).max(10);
+const isoDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})?$/).max(30);
+
 export const appointmentsRouter = router({
   listByDate: protectedProcedure
     .input(
       z.object({
-        data: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
+        data: isoDateOnly,
         barbeiroId: z.string().uuid().optional(),
       })
     )
@@ -42,8 +45,8 @@ export const appointmentsRouter = router({
   listByDateRange: protectedProcedure
     .input(
       z.object({
-        dataInicio: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
-        dataFim: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
+        dataInicio: isoDateOnly,
+        dataFim: isoDateOnly,
         barbeiroId: z.string().uuid().optional(),
       })
     )
@@ -96,7 +99,7 @@ export const appointmentsRouter = router({
         barbeiroId: z.string().uuid(),
         servicoId: z.string().uuid(),
         clienteId: z.string().uuid(),
-        dataHora: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
+        dataHora: isoDateTime,
         observacoes: z.string().max(1000).optional(),
         origem: z.enum(["manual", "app"]).default("manual"),
       })
@@ -287,7 +290,7 @@ export const appointmentsRouter = router({
       z.object({
         barbeiroId: z.string().uuid(),
         servicoId: z.string().uuid(),
-        data: z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30),
+        data: isoDateOnly,
       })
     )
     .query(async ({ ctx, input }) => {

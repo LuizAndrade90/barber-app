@@ -3,7 +3,7 @@ import { router, protectedProcedure } from "../server";
 import { agendamentos, metricasDiarias, aiInsights } from "@/lib/db/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 
-const isoDateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}/).max(30);
+const isoDateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).max(10);
 
 const dateRangeInput = z.object({
   dataInicio: isoDateStr,

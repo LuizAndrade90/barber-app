@@ -27,13 +27,16 @@ export const settingsRouter = router({
       z.object({
         horarioFuncionamento: z
           .record(
-            z.string(),
+            z.string().max(20),
             z.object({
               inicio: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
               fim: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
               ativo: z.boolean(),
             })
           )
+          .refine((obj) => Object.keys(obj).length <= 7, {
+            message: "Máximo de 7 dias permitidos",
+          })
           .optional(),
         intervaloSlots: z.number().int().min(5).max(120).optional(),
         antecedenciaMinima: z.number().int().min(0).max(1440).optional(),
