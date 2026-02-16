@@ -8,7 +8,7 @@ interface WeekSelectorProps {
   className?: string;
 }
 
-const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
 export function WeekSelector({
   dataSelecionada,
@@ -29,30 +29,45 @@ export function WeekSelector({
   });
 
   return (
-    <div className={cn("flex gap-1", className)}>
-      {dias.map((dia, i) => {
-        const isHoje = dia.toDateString() === hoje.toDateString();
-        const isSelecionado =
-          dia.toDateString() === dataSelecionada.toDateString();
+    <section className={cn("mb-8 overflow-x-auto pb-4 md:pb-0 scrollbar-hide", className)}>
+      <div className="flex md:grid md:grid-cols-7 gap-3 min-w-max md:min-w-0">
+        {dias.map((dia, i) => {
+          const isSelecionado =
+            dia.toDateString() === dataSelecionada.toDateString();
 
-        return (
-          <button
-            key={i}
-            onClick={() => onSelectDate(dia)}
-            className={cn(
-              "flex flex-1 flex-col items-center gap-0.5 rounded-xl py-2 text-xs transition-colors",
-              isSelecionado
-                ? "bg-primary text-white"
-                : isHoje
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent"
-            )}
-          >
-            <span className="font-medium">{DIAS_SEMANA[i]}</span>
-            <span className="text-lg font-bold">{dia.getDate()}</span>
-          </button>
-        );
-      })}
-    </div>
+          return (
+            <button
+              key={i}
+              onClick={() => onSelectDate(dia)}
+              className={cn(
+                "flex flex-col items-center justify-center p-3 w-16 md:w-auto h-20 md:h-24 rounded-xl transition-all",
+                isSelecionado
+                  ? "bg-primary text-white shadow-glow transform scale-105"
+                  : "bg-surface-light dark:bg-surface-dark text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+              )}
+            >
+              <span
+                className={cn(
+                  "text-xs font-medium uppercase mb-1",
+                  isSelecionado && "opacity-90"
+                )}
+              >
+                {DIAS_SEMANA[i]}
+              </span>
+              <span
+                className={cn(
+                  isSelecionado ? "text-2xl font-bold" : "text-lg font-semibold"
+                )}
+              >
+                {dia.getDate()}
+              </span>
+              {isSelecionado && (
+                <div className="w-1.5 h-1.5 bg-white rounded-full mt-1" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }

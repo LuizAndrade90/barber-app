@@ -9,7 +9,7 @@ interface FabProps {
 
 export function Fab({
   icone = "add",
-  label,
+  label = "Novo Agendamento",
   onClick,
   className,
 }: FabProps) {
@@ -17,12 +17,16 @@ export function Fab({
     <button
       onClick={onClick}
       className={cn(
-        "fixed bottom-24 right-4 z-20 flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-white shadow-glow transition-transform active:scale-95 md:bottom-6",
+        "fixed right-6 bottom-20 md:bottom-8 z-40 bg-primary hover:bg-green-500 text-white rounded-2xl p-4 shadow-glow flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95 group",
         className
       )}
     >
-      <span className="material-icons-round">{icone}</span>
-      {label && <span className="text-sm font-semibold">{label}</span>}
+      <span className="material-icons-round text-2xl group-hover:rotate-90 transition-transform">
+        {icone}
+      </span>
+      {label && (
+        <span className="font-bold pr-1 hidden md:inline">{label}</span>
+      )}
     </button>
   );
 }
